@@ -23,7 +23,7 @@ Trước tiên phải add repository cho nó:
 
 Nếu lệnh này không hoạt động, cần cài gói python-software-properties rồi add lại.
 
-    apt-get install python-software-properties
+    apt-get install software-properties-common
 
 Cài đặt với lệnh sau:
 
