@@ -100,7 +100,7 @@ Các state của Salt được chứa trong file có phần mở rộng là *sls
         - running
         - enable: true
 
-**note:** Nếu không có trường *name*, hệ thống sẽ tìm dựa theo tên ở trên cùng là *mysql*. Do đó trong ví dụ này, phần *service* không cần có trường *name*.
+**Note:** Nếu không có trường *name*, hệ thống sẽ tìm dựa theo tên ở trên cùng là *mysql*. Do đó trong ví dụ này, phần *service* không cần có trường *name*.
 Sau khi lưu file này (tên file là mysql.sls)có thể thực hiện cài cho minion với lệnh sau trên máy master:
 
     salt 'tên_minion' state.sls mysql
@@ -154,7 +154,9 @@ VD:
 
 Với lệnh này, ta sẽ biết được OS, họ, nhân của mọi máy minion.
 
-
-
+###3. Quá trình chạy SLS
+Khi master chỉ định chạy một SLS trên một máy minion nào đó, renderer bắt đầu thực hiện quá trình xử lý và biến đổi file SLS. Tại đây, các biến số, các giá trị Granis, Pillar được thay bằng các giá trị thực, các vòng lặp, câu lệnh điều kiện được thực hiện để tạo ra một SLS chỉ gồm các dữ liệu có thể biến đổi về dạng dict và list. <br>
+Sau khi quá trình render SLS thành công, master chuyển SLS vào minion cần chạy. Minion nhận được SLS, thực hiện chạy các lệnh tương ứng với các state được khai báo. <br>
+Sau khi tất cả state được thực hiện, minion gửi kết quả về trạng thái của các state về cho master.
 
 
