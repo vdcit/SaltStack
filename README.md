@@ -18,24 +18,24 @@ Mỗi OS sẽ có đôi chút sự khác nhau về cách cài đặt, nhưng có
 Có thể tham khảo cách cài đặt trên hệ điều hành khác tại [đây](http://docs.saltstack.com/en/latest/topics/installation/index.html#quick-install) <br>
 *Ví dụ:* Đối với **Ubuntu server**: <br>
 Trước tiên phải add repository cho nó:
-  add-apt-repository ppa:saltstack/salt
+    add-apt-repository ppa:saltstack/salt
 
 Nếu lệnh này không hoạt động, cần cài gói python-software-properties rồi add lại.
-  apt-get install python-software-properties
+    apt-get install python-software-properties
 
 Cài đặt với lệnh sau:
-  apt-get install salt-master
+    apt-get install salt-master
 
 Sau khi cài đặt, đối với mọi OS đều phải cấu hình cho nó:
 Ở Ubuntu, sửa file cấu hình sau:
-  vim /etc/salt/master
+    vim /etc/salt/master
 
 Tìm và sửa file như sau:
-  interface: 0.0.0.0
+    interface: 0.0.0.0
   
-  file_roots:
-  base:
-    - /srv/salt
+    file_roots:
+    base:
+      - /srv/salt
 
 Nghĩa là bỏ dấu # đầu dòng. Cấu hình như vậy đơn giản là để Master lắng nghe mọi IP và file chạy (top file) sẽ nằm ở /srv/salt <br>
 Save file lại rồi restart service:
