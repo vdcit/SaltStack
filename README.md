@@ -18,19 +18,24 @@ Mỗi OS sẽ có đôi chút sự khác nhau về cách cài đặt, nhưng có
 Có thể tham khảo cách cài đặt trên hệ điều hành khác tại [đây](http://docs.saltstack.com/en/latest/topics/installation/index.html#quick-install) <br>
 *Ví dụ:* Đối với **Ubuntu server**: <br>
 Trước tiên phải add repository cho nó:
+
     add-apt-repository ppa:saltstack/salt
 
 Nếu lệnh này không hoạt động, cần cài gói python-software-properties rồi add lại.
+
     apt-get install python-software-properties
 
 Cài đặt với lệnh sau:
+
     apt-get install salt-master
 
 Sau khi cài đặt, đối với mọi OS đều phải cấu hình cho nó:
 Ở Ubuntu, sửa file cấu hình sau:
+
     vim /etc/salt/master
 
 Tìm và sửa file như sau:
+
     interface: 0.0.0.0
   
     file_roots:
@@ -39,35 +44,43 @@ Tìm và sửa file như sau:
 
 Nghĩa là bỏ dấu # đầu dòng. Cấu hình như vậy đơn giản là để Master lắng nghe mọi IP và file chạy (top file) sẽ nằm ở /srv/salt <br>
 Save file lại rồi restart service:
-  service salt-master restart
+
+    service salt-master restart
 
 Như vậy là đã xong trên máy Master
 
 ####1.2 Trên máy Minion:
 Cũng như Master, cần phải add repository cho nó. Sau đó cài gói salt-minion:
-  apt-get install salt-minion
+
+    apt-get install salt-minion
 
 Cấu hình minion (trên mọi máy minion): <br>
 Sửa nội dung file minion như sau: <br>
 Đối với Ubuntu:
-  vim /etc/salt/minion
+
+    vim /etc/salt/minion
   
 Tìm và sửa nội dung file để quy định máy master(trỏ đến IP của máy master), ví dụ:
-  master: 172.16.69.19
+
+    master: 172.16.69.19
 
 Save file và restart service:
-  service salt-minion restart
+
+    service salt-minion restart
 
 ###1.3 Cấp phép cho Minion:
 Sau khi cài đặt, cấu hình và bật dịch vụ, các máy minion sẽ tự động gửi request đến máy master theo IP đã cấu trình ở trên.
 Để kiểm tra request, dùng lệnh sau trên máy master:
-  salt-key -L
+
+    salt-key -L
 
 Màn hình sẽ hiển thị ra list key đã và chưa chấp nhận ở dạng hostname của máy minion. Để accept minion, dùng lệnh sau:
-  salt-key -a 'tên_minion'
+
+    salt-key -a 'tên_minion'
 
 Để accpept mọi request:
-  salt-key -A
+
+    salt-key -A
 
 Có thể kiểm tra lại list accept để xem các máy con. Vậy là đã hoàn thành cấu hình hệ thống sử dụng salt.
 
@@ -77,36 +90,41 @@ Salt sử dụng hệ thống file cấu hình gọi là SLS (SaLt State file) �
 Các file này nằm trong thư mục */srv/salt* trên máy master như cấu hình lúc đầu.<br>
 Một state mô tả trạng thái mà hệ thống cần phải có như: phần mềm được cài, tên dịch vụ, file cấu hình tồn tại, lệnh thực thi...
 Các state của Salt được chứa trong file có phần mở rộng là *sls*. Ví dụ về một state để cài mysql database cho máy minion chạy Ubuntu:
-  mysql:
-    pkg:
-      - name: mysql-server
-      - installed
-    service:
-      - name: mysql 
-      - running
-      - enable: true
+
+    mysql:
+      pkg:
+        - name: mysql-server
+        - installed
+      service:
+        - name: mysql 
+        - running
+        - enable: true
 
 **note:** Nếu không có trường *name*, hệ thống sẽ tìm dựa theo tên ở trên cùng là *mysql*. Do đó trong ví dụ này, phần *service* không cần có trường *name*.
 Sau khi lưu file này (tên file là mysql.sls)có thể thực hiện cài cho minion với lệnh sau trên máy master:
-  salt 'tên_minion' state.sls mysql
+
+    salt 'tên_minion' state.sls mysql
 
 Hoặc cài trên tất cả các máy:
-  salt '*' state.sls mysql
+
+    salt '*' state.sls mysql
 
 Đó là cách cài đặt đơn giản một gói phần mềm cho minion. Nhưng chỉ là demo, vì thông thường người ta không dùng cách này, nó sẽ không được gọi là tự động nữa! <br>
 Như đã đề cập ở trên, state có một file gọi là top file (top.sls). Trong file này sẽ chứa toàn bộ các gói cho từng máy minion. <br>
 Khi người quản trị gõ lệnh:
-  salt '*' state.highstate
+
+    salt '*' state.highstate
 
 Thì Master sẽ tự động tìm đến file top.sls để chạy nó. <br>
 Ví dụ về một file top.sls:
-  base:
-    "com1":
-      - ub.mysql
-      - ub.nginx
-    "com2":
-      - cen.httpd
-      - cen.rabbit
+
+    base:
+      "com1":
+        - ub.mysql
+        - ub.nginx
+      "com2":
+        - cen.httpd
+        - cen.rabbit
 
 Trong đó, *com1* và *com2* là tên của 2 máy minion, *ub* và *cen* là thư mục chứa các gói bên trong, *mysql* là gói cài đặt như ví dụ ở trên.
 Làm như trên vẫn chưa thể gọi là tự động được, vì vẫn phải định nghĩa từng gói chuẩn cho từng hệ điều hành.
@@ -131,7 +149,8 @@ Dùng để lưu trữ các loại dữ liệu như:
 ####2.4 Grains
 Grains giúp truy cập các thông tin phần cứng, cũng như OS của minion. Ta có thể chọn một các máy có dùng điểm chung ví dụ như hệ điều hành, để cài đặt một số gói đặc biệt chẳng hạn.
 VD:
-  salt '*' grains.item os os_family kernel
+
+    salt '*' grains.item os os_family kernel
 
 Với lệnh này, ta sẽ biết được OS, họ, nhân của mọi máy minion.
 
