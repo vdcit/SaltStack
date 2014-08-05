@@ -68,7 +68,7 @@ Save file và restart service:
 
     service salt-minion restart
 
-###1.3 Cấp phép cho Minion:
+####1.3 Cấp phép cho Minion:
 Sau khi cài đặt, cấu hình và bật dịch vụ, các máy minion sẽ tự động gửi request đến máy master theo IP đã cấu trình ở trên.
 Để kiểm tra request, dùng lệnh sau trên máy master:
 
