@@ -1,5 +1,9 @@
 base:
-  "ubuntu":
-    - base.ub
-  "centos":
-    - base.ce
+  "controller":
+    - 1.base
+
+#  "compute":
+#    - 2.base
+#
+#  "network":
+#    - 3.base

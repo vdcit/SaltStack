@@ -8,13 +8,9 @@ net_reload:
 
 
 hostname:
-  cmd.run:
-    - name: |
-       echo compute > /etc/hostname
-       hostname compute
   file.managed:
     - name: /etc/hosts
-    - source: /conf/hosts
+    - source: salt://conf/hosts
 
 
 ntp:
@@ -29,9 +25,6 @@ mysql:
   pkg:
     - name: python-mysqldb
     - installed
-  service:
-    - running
-    - enable: true
 
 
 minion_mysql:

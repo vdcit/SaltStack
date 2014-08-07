@@ -4,6 +4,8 @@
 
 10.10.10.83     network
 
+10.10.10.1	salt
+
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback
