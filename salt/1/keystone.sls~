@@ -1,0 +1,19 @@
+keystone:
+  pkg:
+    - latest
+  service:
+    - running
+    - enable: true
+
+
+/etc/keystone/keystone.conf:
+  file.managed:
+    - source: salt://conf/keystone.conf
+  cmd.run:
+    - name: service keystone restart
+
+    
+
+ 
+
+	
