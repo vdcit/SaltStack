@@ -15,7 +15,7 @@ Việc cấu hình cài đặt dựa trên việc viết file cấu hình trên 
 ###1. Cài đặt và cấu hình Salt
 ####1.1. Trên máy Master:
 Mỗi OS sẽ có đôi chút sự khác nhau về cách cài đặt, nhưng có điểm chung nhất là đều phải cài gói **salt-master**
-Có thể tham khảo cách cài đặt trên hệ điều hành khác tại [đây](http://docs.saltstack.com/en/latest/topics/installation/index.html#quick-install) <br>
+Có thể tham khảo cách cài đặt trên hệ điều hành khác [*tại đây*](http://docs.saltstack.com/en/latest/topics/installation/index.html#quick-install) <br>
 *Ví dụ:* Đối với **Ubuntu server**: <br>
 Trước tiên phải add repository cho nó:
 
