@@ -1,8 +1,7 @@
-pkg:
-{% if grains['os_family'] == 'RedHat' %}
-  apache: httpd
-  mysql: mysqld
-{% elif grains['os_family'] == 'Debian' %}
-  mysql: mysql-server
-  apache: apache2
+{% if grains['host'] == 'controller' %}
+mysql: mysql-server
+my_ser: mysql
+{% else %}
+mysql: python-mysqldb
+my_ser: ntp
 {% endif %}

@@ -8,10 +8,12 @@ keystone:
 
 /etc/keystone/keystone.conf:
   file.managed:
-    - source: salt://conf/keystone.conf
+    - source: salt://keystone/file/keystone.conf
+    - require:
+      - pkg: keystone
   cmd.run:
     - name: service keystone restart
-
+    
     
 
  

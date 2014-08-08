@@ -1,10 +1,14 @@
 base:
   "controller":
-    - 1.base
-
+    - ntp
+    - mysql
+    - rabbitmq
   "compute":
-    - 2.base
-
+    - ntp
+    - mysql
   "network":
-    - 3.base
+    - ntp
+    - mysql
+
+
 

@@ -1,0 +1,5 @@
+{% if grains['host'] == 'controller' %}
+mysql: mysql-server
+{% else %}
+mysql: python-mysqldb
+{% endif %}
