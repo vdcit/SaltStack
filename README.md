@@ -167,27 +167,27 @@ Phần cài đặt và cấu hình cho master và minion mình đã nói ở tr�
 Nội dung cụ thể như sau: <br>
 - rabbitmq:
 
-    rabbitmq-server:
-      pkg:
-        - installed
-      service:
-        - running
-        - enable: true
+        rabbitmq-server:
+          pkg:
+            - installed
+          service:
+            - running
+            - enable: true
 
 Nội dung file này chỉ đơn giản là đảm bảo cho gói rabbitmq-server đã được cài đặt và dịch vụ đó luôn chạy.
 
 - ntp
     
-    ntp:
-      pkg:
-        - installed
-      service:
-        - running
-        - enable: true
+        ntp:
+          pkg:
+            - installed
+          service:
+            - running
+            - enable: true
 
-    /etc/ntp.conf:
-      file.managed:
-        - source: salt://ntp/file/ntp.conf
+        /etc/ntp.conf:
+          file.managed:
+            - source: salt://ntp/file/ntp.conf
 
 Đây là một state đảm bảo cho gói ntp (gói này có chức năng đồng bộ thời gian giữa các máy chủ) đã được cài đặt và service luôn chạy. Ở phần sửa file cấu hình thì sẽ tự động thay file đó bằng một file đã sửa sẵn, đặt tại máy Master.
     
