@@ -193,13 +193,13 @@ Nội dung file này chỉ đơn giản là đảm bảo cho gói rabbitmq-serve
     
 - mysql
         
-    mysql:
-      pkg.installed:
-        - pkgs:
-          - python-mysqldb
-          - {{ pillar['mysql'] }}
-      service.running:
-        - name: {{ pillar['my_ser'] }}
+        mysql:
+          pkg.installed:
+            - pkgs:
+              - python-mysqldb
+              - {{ pillar['mysql'] }}
+        service.running:
+          - name: {{ pillar['my_ser'] }}
 
 Ý tưởng đối với gói này là chỉ cài mysql-server trên controller, còn python-mysql thì cài trên cả ba máy.<br>
 Để thực hiện điều này, cần có một file chứa biến đặt ở thư mục pillar. Mình đặt tên cho file này là packages.sls <br>
