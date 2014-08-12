@@ -24,6 +24,10 @@ Trước tiên phải add repository cho nó:
 Nếu lệnh này không hoạt động, cần cài gói python-software-properties rồi add lại.
 
     apt-get install software-properties-common
+    
+Sau đó update hệ thống:
+    
+    apt-get update
 
 Cài đặt với lệnh sau:
 
@@ -160,6 +164,7 @@ Sau khi quá trình render SLS thành công, master chuyển SLS vào minion c�
 Sau khi tất cả state được thực hiện, minion gửi kết quả về trạng thái của các state về cho master.
 
 ###4. DEMO
+<<<<<<< HEAD
 Trong phần này, tôi sẽ demo sử dụng SaltStack để cài đặt các gói cơ bản trước khi cài openstack trên 3 node.
 Cấu hình 3 node minion như sau: <br>
 Controller node:
@@ -214,4 +219,95 @@ Tất cả file cần thiết nằm trong thư mục state và pillar. <br>
 
 
 
+=======
+Trong phần này mình sẽ thực hiện cài đặt một số gói cơ bản trên ba máy Minion, cụ thể là mysql-server, python-mysqldb, ntp, rabbitmq-server, và sửa file cấu hình mysql. <br>
+Ba máy Minion lần lượt là Controller, Network, Compute (dự định cài OpenStack bằng Salt nhưng mới chỉ cài được các gói cơ bản). <br>
+Phần cài đặt và cấu hình cho master và minion mình đã nói ở trên, sẽ không nhắc lại nữa. Ở phần này mình chỉ nói về ý tưởng và cách Salt hoạt động. <br>
+Đầu tiên là các gói cài đặt. Các gói này sẽ đặt trong thư mục salt.<br>
+Nội dung cụ thể như sau: <br>
+- rabbitmq:
 
+        rabbitmq-server:
+          pkg:
+            - installed
+          service:
+            - running
+            - enable: true
+
+Nội dung file này chỉ đơn giản là đảm bảo cho gói rabbitmq-server đã được cài đặt và dịch vụ đó luôn chạy.
+
+- ntp
+    
+        ntp:
+          pkg:
+            - installed
+          service:
+            - running
+            - enable: true
+
+        /etc/ntp.conf:
+          file.managed:
+            - source: salt://ntp/file/ntp.conf
+
+Đây là một state đảm bảo cho gói ntp (gói này có chức năng đồng bộ thời gian giữa các máy chủ) đã được cài đặt và service luôn chạy. Ở phần sửa file cấu hình thì sẽ tự động thay file đó bằng một file đã sửa sẵn, đặt tại máy Master.
+    
+- mysql
+        
+        mysql:
+          pkg.installed:
+            - pkgs:
+              - python-mysqldb
+              - {{ pillar['mysql'] }}
+        service.running:
+          - name: {{ pillar['my_ser'] }}
+
+Ý tưởng đối với gói này là chỉ cài mysql-server trên controller, còn python-mysql thì cài trên cả ba máy.<br>
+Để thực hiện điều này, cần có một file chứa biến đặt ở thư mục pillar. Mình đặt tên cho file này là packages.sls <br>
+Nội dung file như sau:
+
+    
+    {% if grains['host'] == 'controller' %}
+    mysql: mysql-server
+    my_ser: mysql
+    {% else %}
+    mysql: python-mysqldb
+    my_ser: ntp
+    {% endif %}
+
+Ý nghĩa đoạn code này rất đơn giản: nếu tên minion là controller thì gán biến mysql là mysql-server, gán my_ser là mysql. Còn lại đối với minion khác thì đặt là python-mysqldb và ntp. Thực ra chỗ này mình chưa tìm được cách sử dụng biến null trong salt nên đành dùng tạm cách này! 
+Quay lại với file mysql ở trên, khi mình gọi biến mysql và my_ser ở trong pillar, hệ thống sẽ tìm điều kiện thỏa mãn hostname là controller để cài gói mysql-server, hai máy còn lại thì chỉ cài python-mysqldb. <br>
+Trong pillar cũng cần có top file để trỏ đến file chứa biến. Trong trường hợp này sẽ là file packages.sls <br>
+Nội dung top file trong pillar sẽ như sau:
+>>>>>>> 969f5c4d9f22269a387c7c7d0146c41aca4245a6
+
+    base:
+      '*':
+        - packages
+    
+Cuối cùng là top file của state, file này sẽ chỉ định những gói cần cài trên từng máy:
+
+    base:
+      "controller":
+        - ntp
+        - mysql
+        - rabbitmq
+      "compute":
+        - ntp
+        - mysql
+      "network":
+        - ntp
+        - mysql
+
+Hoặc ngắn gọn hơn:
+
+    base:
+      "*":
+        - ntp
+        - mysql
+      "controller":
+        - rabbitmq
+
+Quá trình hoạt động sẽ như thế này: Khi người quản trị gõ lệnh ***salt '*' state.highstate***, hệ thống sẽ tìm đến file top.sls trong thư mục state để đọc những gói cần cài đối với từng minion. Những gói cài đặt trực tiếp như rabbitmq hay ntp thì hệ thống sẽ tìm gói và cài đặt luôn cho máy minion chỉ định. Còn đối với mysql, hệ thống đọc được biến từ pillar nên sẽ tìm đến file top.sls trong pillar để tìm đến file chứa biến, chính là **packages.sls**. Sau khi tìm đến file này, hệ thống sẽ thực hiện các phép toán để tìm ra điều kiện thỏa mãn và tiến hành cài đặt theo chỉ định. Khi quá trình cài đặt hoàn tất, hệ thống sẽ gửi kết quả chi tiết từ các minion về máy master.
+
+Với hệ thống chỉ có 3 máy minion thế này, ta thấy việc sử dụng pillar là không cần thiết, vì hoàn toàn có thể tách riêng mysql-server và python-mysql thành hai state khác nhau và chỉ định cụ thể cho từng máy. Nhưng với hệ thống lớn có đến hàng nghìn đến hàng trăm nghìn máy thì sao? Nếu làm thủ công thì bạn sẽ phải lặp lại công việc đến hàng nghìn lần. Nhưng khi dùng pillar thì chỉ cần cấu hình biến và dùng một lệnh duy nhất mà thôi! Đó chính là sự khác nhau giữa state và pillar và cũng là cái hay của SaltStack. Nó thực sự hữu dụng với các hệ thống lớn.<br>
+Mình xin dừng bài DEMO tại đây! Khi hoàn thành được keystone và các thành phần khác mình sẽ cập nhật tiếp! 
