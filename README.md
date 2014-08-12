@@ -177,7 +177,7 @@ Controller node:
               
 Compute node:
 
-  hostname: c
+  hostname: compute
   eth0:
               address: 10.10.10.82
               netmask: 255.255.255.0
