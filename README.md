@@ -24,6 +24,10 @@ Trước tiên phải add repository cho nó:
 Nếu lệnh này không hoạt động, cần cài gói python-software-properties rồi add lại.
 
     apt-get install software-properties-common
+    
+Sau đó update hệ thống:
+    
+    apt-get update
 
 Cài đặt với lệnh sau:
 
