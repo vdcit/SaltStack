@@ -1,0 +1,7 @@
+python-mysqldb:
+  pkg.installed
+
+minion:
+  file.managed:
+    - name: /etc/salt/minion
+    - source: salt://conf/minion

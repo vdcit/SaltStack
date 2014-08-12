@@ -15,7 +15,7 @@ Việc cấu hình cài đặt dựa trên việc viết file cấu hình trên 
 ###1. Cài đặt và cấu hình Salt
 ####1.1. Trên máy Master:
 Mỗi OS sẽ có đôi chút sự khác nhau về cách cài đặt, nhưng có điểm chung nhất là đều phải cài gói **salt-master**
-Có thể tham khảo cách cài đặt trên hệ điều hành khác [*tại đây*](http://docs.saltstack.com/en/latest/topics/installation/index.html#quick-install) <br>
+Có thể tham khảo cách cài đặt trên hệ điều hành khác tại [đây](http://docs.saltstack.com/en/latest/topics/installation/index.html#quick-install) <br>
 *Ví dụ:* Đối với **Ubuntu server**: <br>
 Trước tiên phải add repository cho nó:
 
@@ -158,60 +158,5 @@ Với lệnh này, ta sẽ biết được OS, họ, nhân của mọi máy mini
 Khi master chỉ định chạy một SLS trên một máy minion nào đó, renderer bắt đầu thực hiện quá trình xử lý và biến đổi file SLS. Tại đây, các biến số, các giá trị Granis, Pillar được thay bằng các giá trị thực, các vòng lặp, câu lệnh điều kiện được thực hiện để tạo ra một SLS chỉ gồm các dữ liệu có thể biến đổi về dạng dict và list. <br>
 Sau khi quá trình render SLS thành công, master chuyển SLS vào minion cần chạy. Minion nhận được SLS, thực hiện chạy các lệnh tương ứng với các state được khai báo. <br>
 Sau khi tất cả state được thực hiện, minion gửi kết quả về trạng thái của các state về cho master.
-
-###4. DEMO
-Trong phần này, tôi sẽ demo sử dụng SaltStack để cài đặt các gói cơ bản trước khi cài openstack trên 3 node.
-Cấu hình 3 node minion như sau: <br>
-Controller node:
-
-  hostname: controller
-  eth0:
-              address: 10.10.10.81
-              netmask: 255.255.255.0
-           
-  eth1: 
-              address: 172.16.69.81
-              netmask: 255.255.255.0
-              gateway: 172.16.69.1
-              dns-nameservers: 8.8.8.8
-              
-Compute node:
-
-  hostname: c
-  eth0:
-              address: 10.10.10.82
-              netmask: 255.255.255.0
-           
-  eth1: 
-              address: 172.16.69.82
-              netmask: 255.255.255.0
-              gateway: 172.16.69.1
-              dns-nameservers: 8.8.8.8
-  
-  eth2:
-              address: 10.10.20.82ompute
-              netmask: 255.255.255.0
-  
-Network node:
-  
-  hostname: network
-  eth0:
-              address: 10.10.10.83
-              netmask: 255.255.255.0
-           
-  eth1: 
-              address: 172.16.69.83
-              netmask: 255.255.255.0
-              gateway: 172.16.69.1
-              dns-nameservers: 8.8.8.8
-  
-  eth2:
-              address: 10.10.20.83
-              netmask: 255.255.255.0
-               
-Cả 3 node đều là máy ảo chạy Ubuntu server 14.04. Máy master là laptop cá nhân, sẽ sử dụng SaltStack để cài đặt cho 3 minion.<br>
-Tất cả file cần thiết nằm trong thư mục state và pillar. <br>
-
-
 
 

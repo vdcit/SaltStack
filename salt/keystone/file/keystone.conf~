@@ -10,8 +10,7 @@
 # recommended), remove AdminTokenAuthMiddleware from your
 # paste application pipelines (for example, in keystone-
 # paste.ini). (string value)
-admin_token=ADMIN
-log_dir = /var/log/keystone
+#admin_token=ADMIN
 
 # The IP address of the network interface for the public
 # service to listen on. (string value)

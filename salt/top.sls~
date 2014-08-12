@@ -4,6 +4,5 @@ base:
     - mysqldb
   'controller':
     - mysql
-    - mysql.create
     - rabbitmq
 

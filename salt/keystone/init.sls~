@@ -10,22 +10,23 @@ keystone_db:
     - name: /var/lib/keystone/keystone.db
     - absent
 
+{% set OS_SERVICE_TOKEN="ADMIN" %}
+{% set OS_SERVICE_ENDPOINT="http://controller:35357/v2.0" %}
+
+
 db_sync:
   cmd.run:
     - name: su -s /bin/sh -c "keystone-manage db_sync" keystone
     - require:
-      - service.running: mysql
+      - service: mysql
 
 /etc/keystone/keystone.conf:
   file.managed:
     - source: salt://keystone/file/keystone.conf
     - require:
-      - pkg.installed: keystone
+      - pkg: keystone
   cmd.run:
     - name: service keystone restart
-    
-{% set OS_SERVICE_TOKEN=ADMIN %}
-{% set OS_SERVICE_ENDPOINT=http://controller:35357/v2.0 %}
 
 create_tenant:
   keystone.tenant_present:
@@ -78,13 +79,19 @@ keystone_endpoint:
 
 unset:
   cmd.run:
-    - name: |
-      unset OS_SERVICE_TOKEN OS_SERVICE_ENDPOINT
-      keystone --os-username=admin --os-password=1 --os-auth-url=http://controller:35357/v2.0 token-get
-      keystone --os-username=admin --os-password=1 --os-tenant-name=admin --os-auth-url=http://controller:35357/v2.0 token-get
+    - name: unset OS_SERVICE_TOKEN OS_SERVICE_ENDPOINT
+
+unset2:
+  cmd.run:
+    - name: keystone --os-username=admin --os-password=1 --os-auth-url=http://controller:35357/v2.0 token-get
+
+unset3:
+  cmd.run:
+    - name: keystone --os-username=admin --os-password=1 --os-tenant-name=admin --os-auth-url=http://controller:35357/v2.0 token-get
       
 create_file:
   file.managed:
     - name: /root/admin-openrc.sh
     - source: salt://keystone/file/admin-openrc.sh
-	
+  cmd.run:
+    - name: source admin-openrc.sh
