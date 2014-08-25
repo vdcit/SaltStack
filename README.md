@@ -311,3 +311,26 @@ Quá trình hoạt động sẽ như thế này: Khi người quản trị gõ l
 
 Với hệ thống chỉ có 3 máy minion thế này, ta thấy việc sử dụng pillar là không cần thiết, vì hoàn toàn có thể tách riêng mysql-server và python-mysql thành hai state khác nhau và chỉ định cụ thể cho từng máy. Nhưng với hệ thống lớn có đến hàng nghìn đến hàng trăm nghìn máy thì sao? Nếu làm thủ công thì bạn sẽ phải lặp lại công việc đến hàng nghìn lần. Nhưng khi dùng pillar thì chỉ cần cấu hình biến và dùng một lệnh duy nhất mà thôi! Đó chính là sự khác nhau giữa state và pillar và cũng là cái hay của SaltStack. Nó thực sự hữu dụng với các hệ thống lớn.<br>
 Mình xin dừng bài DEMO tại đây! Khi hoàn thành được keystone và các thành phần khác mình sẽ cập nhật tiếp! 
+
+#### Cập nhật 25/8/2014:
+Đã hoàn thành cài đặt OpenStack trên 3 node với SaltStack. Tuy nhiên code vẫn chưa tối ưu, cần phải chạy 2 lần mới thành công, có trường hợp phải chạy tới 3 lần hoặc chạy riêng từng node
+
+    salt controller state.highstate
+    salt compute state.highstate
+    salt network state.highstate
+
+Đối với hệ thống có IP và hostname khác, chỉ cần sửa các biến trong file /pillar/config.sls sao cho phù hợp với hệ thống là có thể chạy. Có thể sửa đổi các thông tin của user, tenant, hay service...
+**Lưu ý:** host1 là tên của controller node, host2 là tên của compute node, host3 là tên của network node. Cần chú ý sửa đổi cho đúng để cài đặt đúng. 
+
+    {% set host1='controller' %}
+    {% set host2='compute' %}
+    {% set host3='network' %}
+
+    {% set controller_ip='10.10.10.81' %}
+    {% set compute_ip='10.10.10.82' %}
+    {% set network_ip='10.10.10.83' %}
+
+    {% set compute_tunnel='10.10.20.82' %}
+    {% set network_tunnel='10.10.20.83' %}
+
+Hy vọng sẽ tối ưu được code trong thời gian tới để việc cài đặt trở nên "mượt" hơn :)
