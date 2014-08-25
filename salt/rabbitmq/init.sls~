@@ -1,13 +1,18 @@
 rabbitmq:
-  pkg:
+  pkg.installed:
     - name: rabbitmq-server
-    - installed
-  service:
+    - refresh: False
+  service.running:
     - name: rabbitmq-server
-    - running
-    - enable: true
-  cmd.run:
-    - name: |
-      rabbitmqctl change_password guest 1
-      sleep 3
+    - require:
+      - pkg: rabbitmq-server
 
+  rabbitmq_plugin:
+    - enabled
+
+  rabbitmq_user.present:
+    - name: guest
+    - password: {{ pillar['rabbitmq']['rabbit_pass'] }}
+    - force: True
+    - require:
+      - service: rabbitmq-server

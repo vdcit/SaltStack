@@ -1,22 +1,53 @@
+include:
+  - mysqldb
+
 mysql-server:
   pkg:
     - installed
+    - refresh: False
   file.managed:
     - name: /etc/mysql/my.cnf
-    - source: salt://mysql/file/my.cnf
+    - source: {{ pillar['mysql']['server']['source'] }}
     - user: root
-    - password: '1'
     - group: root
-  require:
-    - pkg: mysql-server
-    - file: /etc/mysql/my.cnf
-  service:
+    - mode: 644
+    - template: jinja
+  service.running:
     - name: mysql
-    - running
-    - reload: true
-    - enable: true
+    - require:
+      - pkg: mysql-server
+    - watch:
+      - file: mysql-server
+
+{% for db in salt['pillar.get']('mysql:database', []) %}
+create_db_{{ db }}:
+  mysql_database.present:
+    - name: {{ db }}
+    - require:
+      - pkg: mysqldb
+      - service: mysql-server
+{% endfor %}
+
+sleep16:
   cmd.run:
-    - name: sleep 3
-/etc/salt/minion:
-  file.managed:
-    - source: salt://mysql/file/minion
+    - name: sleep 10
+{% for user in salt['pillar.get']('mysql:users', []) %}
+{% for host in user['host'] %}
+create_user_{{ user['name'] }}_host_{{ host }}:
+ mysql_user.present:
+   - name: {{ user['name'] }}
+   - host: "{{ host }}"
+   - password: "{{ user['pass'] }}"
+   - require:
+     - pkg: mysqldb
+     - service: mysql-server
+ mysql_grants.present:
+   - grant: "{{ user['privileges'] }}"
+   - database: "{{ user['db_name'] }}.*"
+   - user: {{ user['name'] }}
+   - host: "{{ host }}"
+   - require:
+     - mysql_database: create_db_{{ user['db_name'] }}
+     - mysql_user: create_user_{{ user['name'] }}_host_{{ host }}
+{% endfor %}
+{% endfor %}

@@ -1,3 +1,3 @@
 base:
   '*':
-    - packages
+    - config

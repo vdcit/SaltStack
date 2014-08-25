@@ -10,13 +10,13 @@
 # resolved, then the minion will fail to start.
 master: salt
 
-#mysql.host: 'localhost'
-#mysql.port: 3306
-#mysql.user: 'root'
-#mysql.pass: ''
-#mysql.db: 'mysql'
-#mysql.unix_socket: '/tmp/mysql.sock'
-#mysql.charset: 'utf8'
+mysql.host: 'localhost'
+mysql.port: 3306
+mysql.user: 'root'
+mysql.pass: '1'
+mysql.db: 'mysql'
+mysql.unix_socket: '/tmp/mysql.sock'
+mysql.charset: 'utf8'
 
 
 # Set whether the minion should connect to the master via IPv6

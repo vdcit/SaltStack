@@ -1,97 +1,48 @@
-keystone:
-  pkg:
-    - latest
-  service:
-    - running
-    - enable: true
+include:
+  - mysql
 
-keystone_db:
-  file:
-    - name: /var/lib/keystone/keystone.db
-    - absent
+keystone_pkgs:
+  pkg.installed:
+    - refresh: False
+    - pkgs:
+{% for pkg in salt['pillar.get']('keystone:pkgs', []) %}
+      - {{ pkg }}
+{% endfor %}
 
-{% set OS_SERVICE_TOKEN="ADMIN" %}
-{% set OS_SERVICE_ENDPOINT="http://controller:35357/v2.0" %}
-
-
-db_sync:
+  file.managed:
+    - name: /etc/keystone/keystone.conf
+    - source: salt://keystone/file/keystone.conf
+    - user: root
+    - group: root
+    - mode: 644
+    - template: jinja
+    - require:
+      - pkg: keystone_pkgs
   cmd.run:
-    - name: su -s /bin/sh -c "keystone-manage db_sync" keystone
+    - name: keystone-manage db_sync
+    - unless: mysql -e 'show tables from {{ pillar['keystone']['db_name'] }}' | grep user
     - require:
       - service: mysql
-
-/etc/keystone/keystone.conf:
-  file.managed:
-    - source: salt://keystone/file/keystone.conf
-    - require:
-      - pkg: keystone
-  cmd.run:
-    - name: service keystone restart
-
-create_tenant:
-  keystone.tenant_present:
-    - name:
-      - admin
-      - demo
-      - service
-      
-create_role:
-  keystone.role_present:
-    - name:
-      - admin
- 
-admin:
-  keystone.user_present:
-    - password: '1'
-    - email: trananhkma@admin.com
-    - roles:
-      - admin:
-        - admin
-        - _member_
-    - require:
-      - keystone: create_tenant
-      - keystone: create_role
- 
-demo:
-  keystone.user_present:
-    - password: '1'
-    - email: trananhkma@demo.com
-    - roles:
-      - demo:
-        - _member_
-    - require:
-      - keystone: create_tenant
-      - keystone: create_role
-
-keystone_service:
-  keystone.service_present:
+      - mysql_database: create_db_keystone
+      - file: /etc/keystone/keystone.conf
+  service.running:
     - name: keystone
-    - service_type: identity
-    - description: OpenStack Identity
-
-keystone_endpoint:
-  cmd.run:
-    - name: keystone endpoint-create --service-id=$(keystone service-list | awk '/ identity / {print $2}') --publicurl=http://controller:5000/v2.0 --internalurl=http://controller:5000/v2.0 --adminurl=http://controller:35357/v2.0
+    - watch:
+      - file: /etc/keystone/keystone.conf
+      - cmd: keystone-manage db_sync
     - require:
-      - keystone: create_tenant
-      - keystone: create_role
-      - keystone: keystone_service
+      - pkg: keystone_pkgs
+sleep11:
+  cmd.run:
+    - name: sleep 10
+    - require:
+      - service: keystone_pkgs
+/var/lib/keystone/keystone.db:
+  file:
+    - absent
+    - require:
+      - pkg: keystone_pkgs
 
-unset:
+cron:
   cmd.run:
-    - name: unset OS_SERVICE_TOKEN OS_SERVICE_ENDPOINT
-
-unset2:
-  cmd.run:
-    - name: keystone --os-username=admin --os-password=1 --os-auth-url=http://controller:35357/v2.0 token-get
-
-unset3:
-  cmd.run:
-    - name: keystone --os-username=admin --os-password=1 --os-tenant-name=admin --os-auth-url=http://controller:35357/v2.0 token-get
-      
-create_file:
-  file.managed:
-    - name: /root/admin-openrc.sh
-    - source: salt://keystone/file/admin-openrc.sh
-  cmd.run:
-    - name: source admin-openrc.sh
+    - name: (crontab -l -u keystone 2>&1 | grep -q token_flush) || echo '@hourly /usr/bin/keystone-manage token_flush >/var/log/keystone keystone-tokenflush.log 2>&1' >> /var/spool/cron/crontabs/keystone

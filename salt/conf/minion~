@@ -10,14 +10,6 @@
 # resolved, then the minion will fail to start.
 master: salt
 
-mysql.host: 'localhost'
-mysql.port: 3306
-mysql.user: 'root'
-mysql.pass: ''
-mysql.db: 'mysql'
-mysql.unix_socket: '/tmp/mysql.sock'
-mysql.charset: 'utf8'
-
 # Set whether the minion should connect to the master via IPv6
 #ipv6: False
 
@@ -329,9 +321,9 @@ mysql.charset: 'utf8'
 #     - /srv/salt/prod/services
 #     - /srv/salt/prod/states
 #
-#file_roots:
-#  base:
-#    - /srv/salt
+file_roots:
+  base:
+    - /srv/salt
 
 # By default, the Salt fileserver recurses fully into all defined environments
 # to attempt to find files. To limit this behavior so that the fileserver only
@@ -351,9 +343,9 @@ mysql.charset: 'utf8'
 # The Salt pillar is searched for locally if file_client is set to local. If
 # this is the case, and pillar data is defined, then the pillar_roots need to
 # also be configured on the minion:
-#pillar_roots:
-#  base:
-#    - /srv/pillar
+pillar_roots:
+  base:
+    - /srv/pillar
 
 ######        Security settings       #####
 ###########################################
