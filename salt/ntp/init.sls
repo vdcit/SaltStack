@@ -16,5 +16,5 @@ ntp_setup:
     - watch:
       - file: /etc/ntp.conf
     - require:
-      - pkg: ntp
+      - pkg: ntp_setup
 

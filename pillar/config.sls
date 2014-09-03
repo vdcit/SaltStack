@@ -1,18 +1,22 @@
-{% set host1='controller' %}
-{% set host2='compute' %}
-{% set host3='network' %}
+{% set controller_host='controller' %}
+{% set compute_host='compute' %}
+{% set network_host='network' %}
 
-{% set controller_ip='10.10.10.81' %}
-{% set compute_ip='10.10.10.82' %}
-{% set network_ip='10.10.10.83' %}
+{% set controller_ext='192.168.1.81' %}
+{% set compute_ext='192.168.1.82' %}
+{% set network_ext='192.168.1.83' %}
+
+{% set controller_int='10.10.10.81' %}
+{% set compute_int='10.10.10.82' %}
+{% set network_int='10.10.10.83' %}
 
 {% set compute_tunnel='10.10.20.82' %}
 {% set network_tunnel='10.10.20.83' %}
 
 {% set DEFAULT_PASS='1'%}
-{% set RABBIT_PASS=DEFAULT_PASS %}
 {% set MYSQL_PASS=DEFAULT_PASS %}
 {% set ADMIN_TOKEN='admin123' %}
+{% set RABBIT_PASS=DEFAULT_PASS%}
 
 {% set ADMIN_PASS=DEFAULT_PASS %}
 {% set ADMIN_EMAIL='trananhkma@admin.com' %}
@@ -34,25 +38,30 @@
 {% set NOVA_DBPASS=DEFAULT_PASS %}
 {% set NEUTRON_DBPASS=DEFAULT_PASS %}
 
-{% set MYSQL_SERVER=host1 %}
-{% set KEYSTONE_SERVER=host1 %}
-{% set GLANCE_SERVER=host1%}
-{% set NOVA_SERVER=host1 %}
-{% set NEUTRON_SERVER=host1%}
-{% set RABBIT_HOST=host1 %}
+{% set PUBLIC_HOST=controller_ext%}
+
+{% set MYSQL_SERVER=controller_host %}
+{% set KEYSTONE_SERVER=controller_host %}
+{% set GLANCE_SERVER=controller_host%}
+{% set NOVA_SERVER=controller_host %}
+{% set NEUTRON_SERVER=controller_host%}
+{% set RABBIT_HOST=controller_host %}
 
 {% set METADATA_SECRET=ADMIN_TOKEN %}
-{% set INTERFACE_NAME='eth1'%}
+{% set BREX_INTERFACE='eth1'%}
 
 rabbitmq:
   rabbit_pass: {{ RABBIT_PASS }}
-  rpc_backend: rabbit
+  rpc_backend_other: rabbit
+  rpc_backend_neutron: neutron.openstack.common.rpc.impl_kombu
   host: {{ RABBIT_HOST }}
 mysql:
   server:
     source: salt://mysql/file/my.cnf
     root_pass: {{ MYSQL_PASS }}
-    bind-address: {{ MYSQL_SERVER }}
+    bind-address: {{ controller_int }}
+    host_name: {{ MYSQL_SERVER }}
+    
   users:
     - name: keystone
       host: ['localhost', '%']
@@ -79,8 +88,31 @@ mysql:
     - glance
     - nova
     - neutron
-  
+
+roles:
+  - admin
+
+tenants:
+  - name: admin
+    description: Admin Tenant
+  - name: demo
+    description: Demo Tenant
+  - name: service
+    description: Service Tenant
+
 users:
+  - name: admin
+    pass: {{ ADMIN_PASS }}
+    email: {{ ADMIN_EMAIL }} 
+    roles: ['admin','_member_']
+    tenant: admin
+  
+  - name: demo
+    pass: {{ DEMO_PASS }}
+    email: {{ DEMO_EMAIL }}
+    roles: ['_member_']
+    tenant: demo
+
   - name: glance
     pass: {{ GLANCE_PASS }}
     email: {{ GLANCE_EMAIL }}
@@ -97,38 +129,47 @@ users:
     pass: {{ NEUTRON_PASS }}
     email: {{ NEUTRON_EMAIL }}
     roles: ['admin']
-    tenant: service
-
+    tenant: service 
 
 services:
+  - name: keystone
+    type: identity
+    description: 'OpenStacK Identity'
   - name: glance
     type: image
-    description: OpenStack Image Service
+    description: 'OpenStack Image Service'
   - name: nova
     type: compute
-    description: OpenStack Compute
+    description: 'OpenStack Compute'
   - name: neutron
     type: network
-    description: OpenStack Networking
+    description: 'OpenStack Networking'
 
 endpoints:
+  - service: keystone
+    publicurl: 'http://{{ PUBLIC_HOST }}:5000/v2.0'
+    internalurl: 'http://{{ KEYSTONE_SERVER }}:5000/v2.0'
+    adminurl: 'http://{{ KEYSTONE_SERVER }}:35357/v2.0'
+    type: identity
+
   - service: glance
-    publicurl: 'http://{{ GLANCE_SERVER }}:9292'
+    publicurl: 'http://{{ PUBLIC_HOST }}:9292'
     internalurl: 'http://{{ GLANCE_SERVER }}:9292'
     adminurl: 'http://{{ GLANCE_SERVER }}:9292'
     type: image
 
   - service: nova
-    publicurl: http://{{ NOVA_SERVER }}:8774/v2/%\(tenant_id\)s
+    publicurl: http://{{ PUBLIC_HOST }}:8774/v2/%\(tenant_id\)s
     internalurl: http://{{ NOVA_SERVER }}:8774/v2/%\(tenant_id\)s
     adminurl: http://{{ NOVA_SERVER }}:8774/v2/%\(tenant_id\)s
     type: compute
     
   - service: neutron
-    publicurl: 'http://{{ NEUTRON_SERVER }}:9696'
+    publicurl: 'http://{{ PUBLIC_HOST }}:9696'
     adminurl: 'http://{{ NEUTRON_SERVER }}:9696'
     internalurl: 'http://{{ NEUTRON_SERVER }}:9696'
     type: network
+
 
 keystone:
   pkgs:
@@ -138,37 +179,7 @@ keystone:
   db_name: keystone
   db_user: keystone
   db_pass: {{ ADMIN_PASS }}
-  bind-address: {{ KEYSTONE_SERVER }}
-  tenants:
-    - name: admin
-      description: Admin Tenant
-    - name: demo
-      description: Demo Tenant
-    - name: service
-      description: Service Tenant
-  service:
-    - name: keystone
-      type: identity
-      description: OpenStacK Identity
-  users:
-    - name: admin
-      pass: {{ ADMIN_PASS }}
-      email: {{ ADMIN_EMAIL }} 
-      roles: ['admin','_member_']
-      tenant: admin
-    - name: demo
-      pass: {{ DEMO_PASS }}
-      email: {{ DEMO_EMAIL }}
-      roles: ['_member_']
-      tenant: demo  
-  role: admin
-  endpoint:
-    - service: keystone
-      publicurl: 'http://{{ KEYSTONE_SERVER }}:5000/v2.0'
-      internalurl: 'http://{{ KEYSTONE_SERVER }}:5000/v2.0'
-      adminurl: 'http://{{ KEYSTONE_SERVER }}:35357/v2.0'
-      type: identity
-  adminurl: 'http://{{ KEYSTONE_SERVER }}:35357/v2.0'
+  host_name: {{ KEYSTONE_SERVER }}
 
 glance:
   pkgs:
@@ -177,7 +188,7 @@ glance:
   db_name: glance
   db_user: glance
   db_pass: {{ GLANCE_DBPASS }}
-  bind-address: {{ GLANCE_SERVER }}
+  host_name: {{ GLANCE_SERVER }}
   services:
     - glance-registry
     - glance-api
@@ -198,8 +209,8 @@ nova:
   db_name: nova
   db_user: nova
   db_pass: {{ NOVA_DBPASS }}
-  bind-address: {{ NOVA_SERVER }}
-  my_ip: {{ controller_ip }}
+  host_name: {{ NOVA_SERVER }}
+  my_ip: {{ controller_int }}
   services:
     - nova-api
     - nova-cert
@@ -214,14 +225,14 @@ nova:
     
 nova_compute:
   pkgs:
+    - kvm
+    - libvirt-bin
+    - pm-utils
     - nova-compute-kvm
     - python-guestfs
   source: salt://nova/file/nova-compute.conf
-  db_name: nova
-  db_user: nova
-  db_pass: {{ NOVA_DBPASS }}
-  bind-address: {{ NOVA_SERVER }}
-  my_ip: {{ compute_ip }}
+  host_name: {{ NOVA_SERVER }}
+  my_ip: {{ compute_int }}
   services:
     - nova-compute
   tenant: service
@@ -240,8 +251,8 @@ neutron_controller:
   db_name: neutron
   db_user: neutron
   db_pass: {{ NEUTRON_DBPASS }}
-  bind-address: {{ NEUTRON_SERVER }}
-  my_ip: {{ controller_ip }}
+  host_name: {{ NEUTRON_SERVER }}
+  my_ip: {{ controller_int }}
   services:
     - nova-api
     - nova-scheduler
@@ -250,8 +261,6 @@ neutron_controller:
   tenant: service
   user: neutron
   pass: {{ NEUTRON_PASS }}
-  neutron_url: 'http://{{ NEUTRON_SERVER }}:9696'
-  adminurl: 'http://{{ KEYSTONE_SERVER }}:35357/v2.0'
   
 neutron_compute:
   pkgs:
@@ -263,8 +272,6 @@ neutron_compute:
       source: salt://neutron-compute/file/neutron.conf
     - name: /etc/neutron/plugins/ml2/ml2_conf.ini
       source: salt://neutron-compute/file/ml2_conf.ini
-    - name: /etc/sysctl.conf
-      source: salt://neutron-compute/file/sysctl.conf
   services:
     - openvswitch-switch
     - nova-compute
@@ -276,13 +283,14 @@ neutron_compute:
 
 neutron_network:
   pkgs:
+    - vlan
+    - bridge-utils
     - neutron-plugin-ml2
     - neutron-plugin-openvswitch-agent
+    - dnsmasq
     - neutron-l3-agent
     - neutron-dhcp-agent
   files:
-    - name: /etc/sysctl.conf
-      source: salt://neutron-network/file/sysctl.conf
     - name: /etc/neutron/neutron.conf
       source: salt://neutron-network/file/neutron.conf
     - name: /etc/neutron/l3_agent.ini
@@ -293,7 +301,7 @@ neutron_network:
       source: salt://neutron-network/file/metadata_agent.ini
     - name: /etc/neutron/plugins/ml2/ml2_conf.ini
       source: salt://neutron-network/file/ml2_conf.ini
-  br-ex: {{ INTERFACE_NAME}}
+  br-ex: {{ BREX_INTERFACE }}
   tunnel: {{ network_tunnel }}
   services:
     - openvswitch-switch
@@ -301,6 +309,7 @@ neutron_network:
     - neutron-l3-agent
     - neutron-dhcp-agent
     - neutron-metadata-agent
+    - dnsmasq
 
 horizon:
   pkgs:

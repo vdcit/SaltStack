@@ -1,0 +1,36 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eth1
+iface eth1 inet manual
+up ifconfig $IFACE 0.0.0.0 up
+up ip link set $IFACE promisc on
+down ip link set $IFACE promisc off
+down ifconfig $IFACE down
+
+
+auto br-ex
+iface br-ex inet static
+address 192.168.1.83
+netmask 255.255.255.0
+gateway 192.168.1.1
+dns-nameservers 8.8.8.8
+
+
+auto eth0
+iface eth0 inet static
+address 10.10.10.83
+netmask 255.255.255.0
+
+
+
+auto eth2
+iface eth2 inet static
+address 10.10.20.83
+netmask 255.255.255.0
+

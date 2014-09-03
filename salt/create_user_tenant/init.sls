@@ -1,13 +1,21 @@
 include:
-  - mysql
   - keystone
-  - keystone.create
 
-{% set ADMIN='admin'%}
-{% set PASS=salt['pillar.get']('keystone:admin_pass', '1') %}
-{% set AUTH_URL=salt['pillar.get']('keystone:adminurl', '') %}
-{% set TENANT='admin' %}
-{% set keystone="keystone --os-username=" ~ ADMIN ~ " --os-password=" ~ PASS ~ " --os-tenant-name=" ~ TENANT ~ " --os-auth-url=" ~ AUTH_URL %}
+{% set OS_SERVICE_TOKEN=salt['pillar.get']('keystone:admin_token', '') %}
+{% set OS_SERVICE_ENDPOINT='http://'~ salt['pillar.get']('keystone:host_name', '') ~':35357/v2.0' %}
+{% set keystone="keystone --os-token=" ~ OS_SERVICE_TOKEN ~ " --os-endpoint=" ~ OS_SERVICE_ENDPOINT %}
+
+{% for tenant in salt['pillar.get']('tenants', []) %}
+create_tenant_{{ tenant['name'] }}:
+  cmd.run:
+    - name: {{ keystone }} tenant-create --name="{{ tenant['name'] }}" --description="{{ tenant['description'] }}"
+    - unless: {{ keystone }} tenant-list | grep {{ tenant['name'] }}
+{% endfor %}
+
+create_role_{{ pillar['roles'] }}:
+  cmd.run:
+    - name: {{ keystone }} role-create --name="{{ pillar['roles'] }}"
+    - unless: {{ keystone }} role-list | grep {{ pillar['roles'] }}
 
 {% for user in salt['pillar.get']('users', []) %}
 create_user_{{ user['name'] }}:
@@ -40,3 +48,23 @@ create_endpoint_{{ endpoint['service'] }}:
     - require:
       - cmd: create_service_{{ endpoint['service'] }}
 {% endfor %}
+
+/root/admin-openrc.sh:
+  file.managed:
+    - source: salt://keystone/file/admin-openrc.sh
+    - template: jinja
+
+profile:
+  file.managed:
+    - name: /root/.profile
+    - source: salt://keystone/file/profile
+    - template: jinja
+    - require:
+      - cmd: create_user_admin
+      - cmd: create_endpoint_keystone
+
+Test_Keystone:
+  cmd.run: keystone --os-username=admin --os-password={{pillar['keystone']['admin_pass'] }} --os-tenant-name=admin --os-auth-url=http://{{ pillar['keytone']['host_name'] }}:35357/v2.0 token-get
+    - require:
+      - file: profile
+

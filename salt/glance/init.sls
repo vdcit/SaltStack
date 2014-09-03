@@ -1,5 +1,5 @@
 include:
-  - mysql
+  - create_user_tenant
 
 glance_install:
   pkg.installed:
@@ -24,7 +24,7 @@ glance_install:
     - source: salt://glance/file/glance-registry.conf
     - mode: 644
     - user: glance
-    - group: glance
+    - group: root
     - template: jinja
     - require:
       - pkg: glance_install
@@ -33,7 +33,7 @@ glance_install:
   file.absent:
     - require:
       - pkg: glance_install
-      
+
 glance_db_sync:
   cmd.run:
     - name: glance-manage db_sync
@@ -52,5 +52,31 @@ service_{{ service }}_reload:
       - pkg: glance_install
 {% endfor %} 
 
-      
-      
+test_glane:
+  cmd.run:
+    - name: |
+        glance image-create --name "cirros-0.3.2-x86_64" --is-public true --container-format bare --disk-format qcow2 --location http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img
+        glance image-list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

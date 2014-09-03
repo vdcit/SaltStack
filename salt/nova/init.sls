@@ -1,3 +1,6 @@
+include:
+  - create_user_tenant
+
 nova_install:
   pkg.installed:
     - refresh: False
@@ -36,3 +39,9 @@ reload_{{ service }}:
       - cmd: nova_db_sync
 {% endfor %}
 
+
+test_nova:
+  cmd.run:
+    - name: |
+        nova image-list
+        nova-manage service list

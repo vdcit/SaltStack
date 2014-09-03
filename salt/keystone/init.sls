@@ -22,14 +22,14 @@ keystone_pkgs:
     - name: keystone-manage db_sync
     - unless: mysql -e 'show tables from {{ pillar['keystone']['db_name'] }}' | grep user
     - require:
-      - service: mysql
+      - service: mysql-server
       - mysql_database: create_db_keystone
-      - file: /etc/keystone/keystone.conf
+      - file: keystone_pkgs
   service.running:
     - name: keystone
     - watch:
-      - file: /etc/keystone/keystone.conf
-      - cmd: keystone-manage db_sync
+      - file: keystone_pkgs
+      - cmd: keystone_pkgs
     - require:
       - pkg: keystone_pkgs
 
