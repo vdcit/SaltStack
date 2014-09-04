@@ -55,8 +55,8 @@ service_{{ service }}_reload:
 test_glane:
   cmd.run:
     - name: |
-        glance --os-username=admin --os-password={{pillar['keystone']['admin_pass'] }} --os-tenant-name=admin --os-auth-url=http://{{ pillar['keystone']['host_name'] }}:35357/v2.0 image-create --name "cirros-0.3.2-x86_64" --is-public true --container-format bare --disk-format qcow2 --location http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img
-        glance --os-username=admin --os-password={{pillar['keystone']['admin_pass'] }} --os-tenant-name=admin --os-auth-url=http://{{ pillar['keystone']['host_name'] }}:35357/v2.0 image-list
+        glance image-create --name "cirros-0.3.2-x86_64" --is-public true --container-format bare --disk-format qcow2 --location http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img
+        glance image-list
 
 
 

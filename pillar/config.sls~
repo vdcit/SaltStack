@@ -2,9 +2,9 @@
 {% set compute_host='compute' %}
 {% set network_host='network' %}
 
-{% set controller_ext='172.16.69.81' %}
-{% set compute_ext='172.16.69.82' %}
-{% set network_ext='172.16.69.83' %}
+{% set controller_ext='192.168.1.81' %}
+{% set compute_ext='192.168.1.82' %}
+{% set network_ext='192.168.1.83' %}
 
 {% set controller_int='10.10.10.81' %}
 {% set compute_int='10.10.10.82' %}

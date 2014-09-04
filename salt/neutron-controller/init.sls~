@@ -11,7 +11,6 @@ neutron_controller:
 {% for file in salt['pillar.get']('neutron_controller:files', [])%}
 {{ file['name']}}_controller:
   file.managed:
-    - name: {{ file['name']}}
     - source: {{ file['source']}}
     - mode: 644
     - user: neutron
