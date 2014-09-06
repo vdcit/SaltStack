@@ -334,3 +334,8 @@ Mình xin dừng bài DEMO tại đây! Khi hoàn thành được keystone và c
     {% set network_tunnel='10.10.20.83' %}
 
 Hy vọng sẽ tối ưu được code trong thời gian tới để việc cài đặt trở nên "mượt" hơn :)
+
+###**Update 06/09/2014**
+Hoàn thành code cài đặt OpenStack trên 3 node. Fix lỗi không cài được phần mềm trên Ubuntu 14.04 <br>
+Một số biến đã thay đổi như ip của các node... <br>
+Khi muốn cài đặt trên một hệ thống khác, chỉ cần khai báo ip và host name cụ thể cho từng node trong /pillar/config.sls   :)
