@@ -72,14 +72,6 @@ rpc_backend = {{ pillar['rabbitmq']['rpc_backend_neutron'] }}
 rabbit_host = {{ pillar['rabbitmq']['host'] }}
 #rabbit_password = {{ salt['pillar.get']('rabbitmq:rabbit_pass', '1') }}
 
-notify_nova_on_port_status_changes = True
-notify_nova_on_port_data_changes = True
-nova_url = http://{{ pillar['nova']['host_name'] }}:8774/v2
-nova_admin_username = {{ pillar['nova']['user'] }}
-nova_admin_tenant_id = '---missing---'
-nova_admin_password = {{ pillar['nova']['pass'] }}
-nova_admin_auth_url = http://{{ pillar['nova']['host_name'] }}:35357/v2.0
-
 core_plugin = ml2
 service_plugins = router
 allow_overlapping_ips = True
@@ -407,22 +399,14 @@ root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
 # ===========  end of items for agent management extension =====
 
 [keystone_authtoken]
-auth_uri = http://{{ salt['pillar.get']('keystone:bind-address', 'controller') }}:5000
-auth_host = {{ salt['pillar.get']('keystone:bind-address', 'controller') }}
+auth_uri = http://{{pillar['keystone']['host_name']}}:5000
+auth_host = {{pillar['keystone']['host_name']}}
 auth_port = 35357
 auth_protocol = http
-admin_tenant_name = {{ salt['pillar.get']('neutron_controller:tenant', 'service') }}
-admin_user = {{ salt['pillar.get']('neutron_controller:user', 'neutron') }}
-admin_password = {{ salt['pillar.get']('neutron_controller:pass', '1') }}
+admin_tenant_name = {{pillar['neutron_compute']['tenant']}}
+admin_user = {{pillar['neutron_compute']['user']}}
+admin_password = {{pillar['neutron_compute']['pass']}}
 signing_dir = $state_path/keystone-signing
-
-notify_nova_on_port_status_changes = True
-notify_nova_on_port_data_changes = True
-nova_url = http://{{ pillar['nova']['host_name'] }}:8774/v2
-nova_admin_username = {{ pillar['nova']['user'] }}
-nova_admin_tenant_id = '---missing---'
-nova_admin_password = {{ pillar['nova']['pass'] }}
-nova_admin_auth_url = http://{{ pillar['nova']['host_name'] }}:35357/v2.0
 
 [database]
 # This line MUST be changed to actually run the plugin.
@@ -430,7 +414,7 @@ nova_admin_auth_url = http://{{ pillar['nova']['host_name'] }}:35357/v2.0
 # connection = mysql://root:pass@127.0.0.1:3306/neutron
 # Replace 127.0.0.1 above with the IP address of the database used by the
 # main neutron server. (Leave it as is if the database runs on this host.)
-connection = mysql://{{pillar['neutron_controller']['db_user']}}:{{pillar['neutron_controller']['db_pass']}}@{{pillar['mysql']['server']['host_name']}}/{{pillar['neutron_controller']['db_name']}}
+#connection = sqlite:////var/lib/neutron/neutron.sqlite
 
 # The SQLAlchemy connection string used to connect to the slave database
 # slave_connection =

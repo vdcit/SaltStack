@@ -416,14 +416,6 @@ admin_user = {{ salt['pillar.get']('neutron_controller:user', 'neutron') }}
 admin_password = {{ salt['pillar.get']('neutron_controller:pass', '1') }}
 signing_dir = $state_path/keystone-signing
 
-notify_nova_on_port_status_changes = True
-notify_nova_on_port_data_changes = True
-nova_url = http://{{ pillar['nova']['host_name'] }}:8774/v2
-nova_admin_username = {{ pillar['nova']['user'] }}
-nova_admin_tenant_id = '---missing---'
-nova_admin_password = {{ pillar['nova']['pass'] }}
-nova_admin_auth_url = http://{{ pillar['nova']['host_name'] }}:35357/v2.0
-
 [database]
 # This line MUST be changed to actually run the plugin.
 # Example:

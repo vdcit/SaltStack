@@ -1,5 +1,5 @@
 base:
-  '*ontroller':
+  'Controller':
     - ntp.controller
     - mysql
     - rabbitmq
@@ -9,12 +9,12 @@ base:
     - nova
     - neutron-controller
     - horizon
-  '*ompute':
+  'Compute':
     - ntp
     - mysqldb
     - nova.compute
     - neutron-compute
-  '*etwork':
+  'Network':
     - ntp
     - mysqldb
     - neutron-network

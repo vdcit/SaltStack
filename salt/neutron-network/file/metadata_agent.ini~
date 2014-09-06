@@ -4,11 +4,11 @@
 
 # The Neutron user information for accessing the Neutron API.
 auth_uri = http://{{ pillar['keystone']['host_name'] }}:5000/v2.0
-auth_region = RegionOne
-
+auth_region = regionOne
 admin_tenant_name = {{ pillar['neutron_controller']['tenant'] }}
 admin_user = {{ pillar['neutron_controller']['user'] }}
 admin_password = {{ pillar['neutron_controller']['pass'] }}
+nova_metadata_ip = {{ pillar['neutron_controller']['host_name'] }}
 metadata_proxy_shared_secret = {{ pillar['nova']['metadata'] }}
 
 verbose = True

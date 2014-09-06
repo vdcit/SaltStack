@@ -29,10 +29,6 @@ neutron_network:
       - pkg: neutron_network
 {% endfor %}
 
-dnsmasq_status:
-  cmd.run:
-    - name: echo port=5353 >> /etc/dnsmasq.conf
-
 {% for service in salt['pillar.get']('neutron_network:services', [])%}
 {{service}}:
   service.running:
@@ -75,6 +71,13 @@ restart_network:
         ifdown br-ex && ifup br-ex
     - require:
       - file: edit_network
+
+dnsmasq_status:
+  cmd.run:
+    - name: |
+        echo port=5353 >> /etc/dnsmasq.conf
+        service dnsmasq restart
+    - unless: service dnsmasq status | grep running
 
 profile_1:
   file.managed:

@@ -31,6 +31,9 @@ nova_admin_tenant_id:
   - require:
      - file: /etc/neutron/neutron.conf_controller
 
+apache2.conf:
+  cmd.run:
+    - name: echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
 {% for service in salt['pillar.get']('neutron_controller:services', [])%}
 controller_{{ service }}:

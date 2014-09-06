@@ -2,9 +2,14 @@
 {% set compute_host='compute' %}
 {% set network_host='network' %}
 
-{% set controller_ext='172.16.69.81' %}
-{% set compute_ext='172.16.69.82' %}
-{% set network_ext='172.16.69.83' %}
+#{% set controller_ext='172.16.69.81' %}
+{% set controller_ext='192.168.1.81' %}
+#{% set compute_ext='172.16.69.82' %}
+{% set compute_ext='192.168.1.82' %}
+#{% set network_ext='172.16.69.83' %}
+{% set network_ext='192.168.1.83' %}
+#{% set GATEWAY='172.16.69.1'%}
+{% set GATEWAY='192.168.1.1'%}
 
 {% set controller_int='10.10.10.81' %}
 {% set compute_int='10.10.10.82' %}
@@ -13,7 +18,7 @@
 {% set compute_tunnel='10.10.20.82' %}
 {% set network_tunnel='10.10.20.83' %}
 
-{% set DEFAULT_PASS='1'%}
+{% set DEFAULT_PASS='Admin123'%}
 {% set MYSQL_PASS=DEFAULT_PASS %}
 {% set ADMIN_TOKEN='admin123' %}
 {% set RABBIT_PASS=DEFAULT_PASS%}
@@ -46,6 +51,7 @@
 {% set NOVA_SERVER=controller_host %}
 {% set NEUTRON_SERVER=controller_host%}
 {% set RABBIT_HOST=controller_host %}
+{% set HORIZON_HOST=controller_host %}
 
 {% set METADATA_SECRET=ADMIN_TOKEN %}
 {% set BREX_INTERFACE='eth1'%}
@@ -225,7 +231,7 @@ nova:
     
 nova_compute:
   pkgs:
-    - kvm
+    - qemu-kvm
     - libvirt-bin
     - pm-utils
     - nova-compute-kvm
@@ -238,6 +244,7 @@ nova_compute:
   tenant: service
   user: nova
   pass: {{ NOVA_PASS }}
+  bind-address: {{ PUBLIC_HOST }}
 
 neutron_controller:
   pkgs:
@@ -267,6 +274,7 @@ neutron_compute:
     - neutron-common
     - neutron-plugin-ml2
     - neutron-plugin-openvswitch-agent
+    - openvswitch-datapath-dkms
   files:
     - name: /etc/neutron/neutron.conf
       source: salt://neutron-compute/file/neutron.conf
@@ -287,6 +295,7 @@ neutron_network:
     - bridge-utils
     - neutron-plugin-ml2
     - neutron-plugin-openvswitch-agent
+    - openvswitch-datapath-dkms
     - dnsmasq
     - neutron-l3-agent
     - neutron-dhcp-agent
@@ -310,6 +319,10 @@ neutron_network:
     - neutron-dhcp-agent
     - neutron-metadata-agent
     - dnsmasq
+  bind-address: {{ PUBLIC_HOST }}
+  gateway: {{GATEWAY}}
+  int_ip: {{ network_int }}
+  ext_ip: {{ network_ext }}
 
 horizon:
   pkgs:
@@ -320,4 +333,6 @@ horizon:
   services:
     - apache2
     - memcached
+  bind-address: {{ PUBLIC_HOST }}
+  host: {{ HORIZON_HOST }}
   
