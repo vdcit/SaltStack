@@ -1,15 +1,12 @@
-{% set controller_host='controller' %}
-{% set compute_host='compute' %}
-{% set network_host='network' %}
+{% set controller_host='Controller' %}
+{% set compute_host='Compute' %}
+{% set network_host='Network' %}
 
-#{% set controller_ext='172.16.69.81' %}
-{% set controller_ext='192.168.1.81' %}
-#{% set compute_ext='172.16.69.82' %}
-{% set compute_ext='192.168.1.82' %}
-#{% set network_ext='172.16.69.83' %}
-{% set network_ext='192.168.1.83' %}
-#{% set GATEWAY='172.16.69.1'%}
-{% set GATEWAY='192.168.1.1'%}
+{% set controller_ext='172.16.69.81' %}
+{% set compute_ext='172.16.69.82' %}
+{% set network_ext='172.16.69.83' %}
+{% set GATEWAY='172.16.69.1'%}
+
 
 {% set controller_int='10.10.10.81' %}
 {% set compute_int='10.10.10.82' %}
@@ -19,6 +16,7 @@
 {% set network_tunnel='10.10.20.83' %}
 
 {% set DEFAULT_PASS='Admin123'%}
+
 {% set MYSQL_PASS=DEFAULT_PASS %}
 {% set ADMIN_TOKEN='admin123' %}
 {% set RABBIT_PASS=DEFAULT_PASS%}

@@ -3,6 +3,7 @@ include:
 
 neutron_controller:
   pkg.installed:
+    - refresh: False
     - pkgs:
 {% for pkg in salt['pillar.get']('neutron_controller:pkgs', [])%}
       - {{ pkg }}

@@ -4,7 +4,6 @@ sysctl_compute:
 
 neutron_compute:
   pkg.installed:
-    - refresh: False
     - pkgs:
 {% for pkg in salt['pillar.get']('neutron_compute:pkgs', [])%}
       - {{ pkg }}

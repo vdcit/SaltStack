@@ -11,6 +11,7 @@ sysctl_apply:
 
 neutron_network:
   pkg.installed:
+    - refresh: False
     - pkgs:
 {% for pkg in salt['pillar.get']('neutron_network:pkgs', []) %}
       - {{ pkg }}
