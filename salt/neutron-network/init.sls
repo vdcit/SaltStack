@@ -30,6 +30,14 @@ neutron_network:
       - pkg: neutron_network
 {% endfor %}
 
+fix_error:
+  cmd.run:
+    - name: |
+        echo "dnsmasq_config_file = /etc/neutron/dnsmasq-neutron.conf" >> /etc/neutron/dhcp_agent.ini
+        echo "dhcp-option-force=26,1454" > /etc/neutron/dnsmasq-neutron.conf
+        killall dnsmasq
+    - unless: cat /etc/neutron/dnsmasq-neutron.conf
+
 dnsmasq_status:
   cmd.run:
     - name: echo port=5353 >> /etc/dnsmasq.conf
